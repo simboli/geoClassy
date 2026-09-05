@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "geoClassy"
+dynamic = ["version"]
+description = "Label GPS points with the OpenStreetMap area that contains them."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Nicola Simboli", email = "support@simboli.eu" }]
+keywords = [
+    "geojson", "openstreetmap", "osm", "gps", "shapely", "gis",
+    "point-in-polygon", "spatial-join", "reverse-geocoding",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = ["shapely>=2.0", "numpy>=1.21"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.5", "mypy>=1.5"]
+
+[project.urls]
+Homepage = "https://github.com/simboli/geoClassy"
+Repository = "https://github.com/simboli/geoClassy"
+Issues = "https://github.com/simboli/geoClassy/issues"
+Changelog = "https://github.com/simboli/geoClassy/blob/master/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "src/geoClassy/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/geoClassy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.9"
+files = ["src/geoClassy"]
+strict = false
+warn_unused_ignores = true
