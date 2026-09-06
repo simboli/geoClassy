@@ -74,8 +74,9 @@ def test_file_with_no_boundary_tag_now_raises_with_a_route_out(tmp_path):
     import geoClassy
 
     data = collection(square("Alpha", 0, 0, 10, 10))
-    with pytest.deprecated_call(), pytest.raises(
-        geoClassy.NoAreasFoundError, match=r"geoClassy\.load\(path\) instead"
+    with (
+        pytest.deprecated_call(),
+        pytest.raises(geoClassy.NoAreasFoundError, match=r"geoClassy\.load\(path\) instead"),
     ):
         single.loadFile(str(write(tmp_path, data)))
 

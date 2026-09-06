@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import gzip
 import json
-from pathlib import Path
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -101,9 +101,7 @@ class Areas:
         on_overlap: str = "smallest",
     ) -> None:
         if len(geometries) != len(names):
-            raise ValueError(
-                f"got {len(geometries)} geometries but {len(names)} names"
-            )
+            raise ValueError(f"got {len(geometries)} geometries but {len(names)} names")
         self._on_overlap = _check_policy(on_overlap)
         self._names = list(names)
         self._props = list(properties) if properties is not None else [{} for _ in names]
@@ -131,7 +129,7 @@ class Areas:
         name_key: str = "name",
         only_boundaries: bool = False,
         on_overlap: str = "smallest",
-    ) -> "Areas":
+    ) -> Areas:
         """Build an :class:`Areas` from a parsed GeoJSON FeatureCollection."""
         if not isinstance(data, dict):
             raise InvalidGeoJSONError(f"expected a GeoJSON object, got {type(data).__name__}")
@@ -254,7 +252,7 @@ class Areas:
 
         if policy == "all":
             out: list[list] = [[] for _ in range(n)]
-            order = np.lexsort((self._areas[i_area], i_pt))
+            order = np.lexsort((i_area, self._areas[i_area], i_pt))
             for p, a in zip(i_pt[order], i_area[order]):
                 out[p].append(self._label(a, full))
             return out
@@ -280,9 +278,12 @@ class Areas:
 
         result: list = [None] * n
         if i_pt.size:
-            # Sort by point, then by the policy key: the winner is the first
-            # entry of each point's run.
-            order = np.lexsort((key, i_pt))
+            # Sort by point, then by the policy key, then by feature index:
+            # the winner is the first entry of each point's run. The final key
+            # matters when two areas tie exactly -- without it the winner would
+            # fall out of the index's internal ordering, which is the kind of
+            # arbitrary answer this policy exists to remove.
+            order = np.lexsort((i_area, key, i_pt))
             i_pt_s, i_area_s = i_pt[order], i_area[order]
             first = np.ones(i_pt_s.size, dtype=bool)
             first[1:] = i_pt_s[1:] != i_pt_s[:-1]

@@ -61,6 +61,17 @@ def test_overlapping_pairs_reports_the_impact(tmp_path, nested, disjoint):
     assert clean.overlapping_pairs() == []
 
 
+def test_exact_area_ties_are_broken_by_file_order(tmp_path):
+    """Two areas of identical size containing the same point: the earlier
+    feature must win, whatever order the spatial index happens to return."""
+    from conftest import collection, square
+
+    a = square("First", 0, 0, 10, 10)
+    b = square("Second", 2, 2, 12, 12)
+    assert geoClassy.load(write(tmp_path, collection(a, b))).locate(5, 5) == "First"
+    assert geoClassy.load(write(tmp_path, collection(b, a), "r.geojson")).locate(5, 5) == "Second"
+
+
 def test_sharing_a_border_is_not_an_overlap(tmp_path):
     from conftest import collection, square
 

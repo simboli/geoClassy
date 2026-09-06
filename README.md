@@ -9,8 +9,8 @@ import geoClassy
 
 areas = geoClassy.load("nyc-neighborhoods.geojson")
 
-areas.locate(40.748417, -73.985833)      # 'Midtown South'
-areas.locate(38.897699, -77.036553)      # None — outside every area
+areas.locate(40.748417, -73.985833)  # 'Midtown South'
+areas.locate(38.897699, -77.036553)  # None — outside every area
 
 df["zone"] = areas.locate_many(df.latitude, df.longitude)
 ```
@@ -40,8 +40,14 @@ adds nothing. This is for everyone else.
 ## Speed
 
 `locate_many` runs one spatial-index query for the whole batch instead of one
-per point. Classifying 5,000 points against 500 areas: **24 s → 3 ms**, same
-answers. Use it instead of `df.apply(...)` row by row.
+per point. Use it instead of `df.apply(...)` row by row.
+
+- 5,000 points against 500 areas: **3 ms** (the same work took 24 s in 0.1.x).
+- 1,000,000 points against a 5,000-area partition where every point lands in
+  one: **1.1 s**, after an 83 ms load.
+
+Rows with missing coordinates come back as `None` rather than raising, so a
+dataframe with gaps still classifies in one call.
 
 ## Overlapping areas
 
@@ -51,7 +57,7 @@ more than one `admin_level`. By default geoClassy returns **the smallest
 matching area**, that is, the most specific one:
 
 ```python
-areas.locate(45.472, 9.188)              # 'Brera', not 'Milano' or 'Lombardia'
+areas.locate(45.472, 9.188)  # 'Brera', not 'Milano' or 'Lombardia'
 ```
 
 Change it with `on_overlap`, either for the whole dataset or per call:
@@ -66,7 +72,7 @@ Change it with `on_overlap`, either for the whole dataset or per call:
 To find out whether this affects your data at all, ask:
 
 ```python
-areas.overlapping_pairs()                # [] means no policy can change anything
+areas.overlapping_pairs()  # [] means no policy can change anything
 ```
 
 ## Loading

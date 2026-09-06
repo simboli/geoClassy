@@ -29,6 +29,19 @@ def test_locate_many_rejects_mismatched_lengths(tmp_path, disjoint):
         areas.locate_many([1, 2], [1])
 
 
+def test_missing_coordinates_return_none_rather_than_raising(tmp_path, disjoint):
+    """Dataframes have gaps; one missing row must not sink the whole batch."""
+    areas = geoClassy.load(write(tmp_path, disjoint))
+    nan = float("nan")
+    assert areas.locate_many([5, nan, 5], [5, 5, nan]) == ["Alpha", None, None]
+    assert areas.locate(nan, nan) is None
+
+
+def test_poles_and_antimeridian_are_accepted(tmp_path, disjoint):
+    areas = geoClassy.load(write(tmp_path, disjoint))
+    assert areas.locate_many([90, -90, 0, 0], [0, 0, 180, -180]) == [None] * 4
+
+
 def test_full_returns_the_properties(tmp_path):
     data = collection(square("Milano", 0, 0, 10, 10, admin_level="8", wikidata="Q490"))
     areas = geoClassy.load(write(tmp_path, data))

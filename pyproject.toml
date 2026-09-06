@@ -33,7 +33,7 @@ classifiers = [
 dependencies = ["shapely>=2.0", "numpy>=1.21"]
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "ruff>=0.5", "mypy>=1.5"]
+dev = ["pytest>=7", "ruff>=0.5", "mypy>=1.5", "types-shapely"]
 
 [project.urls]
 Homepage = "https://github.com/simboli/geoClassy"
@@ -47,6 +47,20 @@ path = "src/geoClassy/__init__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/geoClassy"]
 
+# Explicit allow-list. Without it the sdist picks up local tool config such as
+# .claude/settings.local.json, which carries absolute paths from the author's
+# machine, plus 65 KB of archived 0.1.x documentation nobody installs.
+[tool.hatch.build.targets.sdist]
+include = [
+    "src",
+    "tests",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+exclude = ["docs", ".gitignore", ".github", ".claude"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["error::DeprecationWarning"]
@@ -54,12 +68,16 @@ filterwarnings = ["error::DeprecationWarning"]
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
+# Archived 0.1.x documentation: kept verbatim, not held to current style.
+extend-exclude = ["docs"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.mypy]
-python_version = "3.9"
+# No python_version pin: recent mypy refuses targets below 3.10, and pinning one
+# also breaks parsing of numpy's own stubs. The 3.9 floor is enforced by the
+# test matrix in CI instead.
 files = ["src/geoClassy"]
 strict = false
 warn_unused_ignores = true

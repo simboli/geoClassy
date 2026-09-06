@@ -38,9 +38,7 @@ def test_multipolygon_feature_loads(tmp_path):
             ],
         },
     }
-    areas = geoClassy.load(
-        write(tmp_path, collection(square("Mainland", 0, 0, 10, 10), islands))
-    )
+    areas = geoClassy.load(write(tmp_path, collection(square("Mainland", 0, 0, 10, 10), islands)))
     assert len(areas) == 2
     assert areas.locate(20.5, 20.5) == "Isole"
     assert areas.locate(30.5, 30.5) == "Isole"
@@ -96,7 +94,7 @@ def test_swapped_lat_lon_is_reported(tmp_path, disjoint):
     """
     areas = geoClassy.load(write(tmp_path, disjoint))
     with pytest.raises(ValueError, match="Did you swap"):
-        areas.locate(139.691706, 35.689487)   # Tokyo, with lat and lon swapped
+        areas.locate(139.691706, 35.689487)  # Tokyo, with lat and lon swapped
     with pytest.raises(ValueError, match="out of range"):
         areas.locate(0, 200)
 
@@ -119,8 +117,8 @@ def test_invalid_geometry_is_repaired(tmp_path):
         },
     }
     areas = geoClassy.load(write(tmp_path, collection(bowtie)))
-    assert areas.locate(5, 8) == "Bowtie"   # inside the right-hand lobe
-    assert areas.locate(2, 5) is None       # the pinch point, genuinely outside
+    assert areas.locate(5, 8) == "Bowtie"  # inside the right-hand lobe
+    assert areas.locate(2, 5) is None  # the pinch point, genuinely outside
 
 
 def test_gzipped_input(tmp_path, disjoint):

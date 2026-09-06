@@ -37,7 +37,9 @@ and each has a regression test in `tests/test_regressions.py`.
   global state. Several datasets can be open at once, and it is safe to share
   between threads.
 - `Areas.locate_many()`, vectorised over a whole batch: 5,000 points against 500
-  areas went from 24 s to 3 ms, with identical answers.
+  areas went from 24 s to 3 ms, with identical answers. A million points against
+  a 5,000-area partition take about a second. Points with missing (NaN)
+  coordinates return `None` instead of raising, so batches with gaps still run.
 - `on_overlap` policies: `"smallest"` (default), `"first"`, `"last"`, `"all"`,
   `"error"`.
 - `Areas.overlapping_pairs()`, to check whether overlap policy affects your data
