@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0
+## 0.2.0 — unreleased
 
 A repair-and-foundations release: no new features, but the package now installs
 correctly, answers correctly, and is fast on batches.

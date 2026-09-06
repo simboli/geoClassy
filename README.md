@@ -127,7 +127,7 @@ results before you migrate:
 
 Three of those crashed with `TypeError` on Shapely 2.x, and `getNames` returned
 whichever overlapping area happened to come last in the file. See
-[CHANGELOG.md](CHANGELOG.md).
+[CHANGELOG.md](https://github.com/simboli/geoClassy/blob/master/CHANGELOG.md).
 
 ## Contact
 
