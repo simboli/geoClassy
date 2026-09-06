@@ -44,6 +44,43 @@ def test_multipolygon_feature_loads(tmp_path):
     assert areas.locate(30.5, 30.5) == "Isole"
 
 
+def test_holes_are_respected(tmp_path):
+    """Real administrative boundaries have inner rings: Italy's polygon carries
+    holes for San Marino and Vatican City, and a point in one is not in Italy."""
+    donut = {
+        "type": "Feature",
+        "properties": {"name": "Donut"},
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+                [[4, 4], [6, 4], [6, 6], [4, 6], [4, 4]],
+            ],
+        },
+    }
+    areas = geoClassy.load(write(tmp_path, collection(donut)))
+    assert areas.locate(2, 2) == "Donut"
+    assert areas.locate(5, 5) is None  # inside the hole
+    assert areas.locate(4, 5) == "Donut"  # on the hole's edge
+
+
+def test_non_polygonal_features_are_skipped(tmp_path):
+    """Nominatim and Overpass return mixed collections: a place node comes back
+    as a Point. Those must be ignored, not crash the load."""
+    point = {
+        "type": "Feature",
+        "properties": {"name": "A node"},
+        "geometry": {"type": "Point", "coordinates": [5, 5]},
+    }
+    line = {
+        "type": "Feature",
+        "properties": {"name": "A way"},
+        "geometry": {"type": "LineString", "coordinates": [[0, 0], [5, 5]]},
+    }
+    areas = geoClassy.load(write(tmp_path, collection(point, square("Real", 0, 0, 10, 10), line)))
+    assert areas.names == ["Real"]
+
+
 def test_features_without_boundary_tag_are_used(tmp_path):
     """0.1.1: silently kept only properties.type == 'boundary', so most
     Overpass and osmtogeojson exports loaded zero areas and answered 'unknown'."""
