@@ -97,18 +97,26 @@ endemic in OSM exports — are repaired on load.
 
 ## Where to get the boundaries
 
-- **[Overpass Turbo](https://overpass-turbo.eu/)** — draw a bounding box, run a
-  query, export GeoJSON. The [Overpass API
-  guide](https://wiki.openstreetmap.org/wiki/Overpass_API) and its
-  [cookbook](https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_API_by_Example)
-  cover the query language.
-- **[polygons.openstreetmap.fr](http://polygons.openstreetmap.fr/)** — GeoJSON
-  for a single OSM relation id.
-- **[simboli.eu/geojson-file](http://www.simboli.eu/geojson-file/)** — ready-made
-  files.
+geoClassy never touches the network: you bring the file. Two ways to get one, in
+one request each:
 
-Fetching straight from Overpass is planned for 0.3 as an optional command, so
-the library itself stays offline.
+- **one boundary by name** — [Nominatim](https://nominatim.org/) returns it as
+  GeoJSON, polygon included:
+
+  ```bash
+  curl -s -A "my-project/1.0 (me@example.com)" -G \
+    --data-urlencode "q=Bologna, Italia" --data-urlencode "format=geojson" \
+    --data-urlencode "polygon_geojson=1" --data-urlencode "limit=1" \
+    "https://nominatim.openstreetmap.org/search" > bologna.geojson
+  ```
+
+- **all the subdivisions of an area** — paste a five-line query into
+  [Overpass Turbo](https://overpass-turbo.eu/) and export GeoJSON.
+
+The full guide, **[Getting boundary data](https://github.com/simboli/geoClassy/blob/master/docs/getting-data.md)**,
+has the Overpass queries ready to paste, explains why `admin_level` means
+different things in different countries, why most "neighbourhoods" in OSM are
+points rather than polygons, and how to check a file before trusting it.
 
 ## Upgrading from 0.1.x
 
