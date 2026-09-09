@@ -16,6 +16,8 @@ df["zone"] = areas.locate_many(df.latitude, df.longitude)
 ```
 
 That is the whole library. `len(areas)` counts them, `areas.names` lists them.
+An executed, run-it-yourself walkthrough of everything below is in
+**[examples/getting-started.ipynb](https://github.com/simboli/geoClassy/blob/master/examples/getting-started.ipynb)**.
 
 ```console
 pip install geoClassy

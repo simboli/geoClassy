@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 
 import geoClassy
 from conftest import write
+from geoClassy import Areas
 
 
 def test_smallest_is_the_default_and_is_the_most_specific(tmp_path, nested):
@@ -70,6 +72,38 @@ def test_exact_area_ties_are_broken_by_file_order(tmp_path):
     b = square("Second", 2, 2, 12, 12)
     assert geoClassy.load(write(tmp_path, collection(a, b))).locate(5, 5) == "First"
     assert geoClassy.load(write(tmp_path, collection(b, a), "r.geojson")).locate(5, 5) == "Second"
+
+
+def test_enclave_hole_is_not_an_overlap():
+    """An enclave whose hole was digitised separately from the enclave's own
+    outline. Two tracings of one border never coincide bit for bit, so the
+    intersection has a tiny non-zero area -- for San Marino inside Italy it is
+    about 1e-18 square degrees -- and a strict > 0 reported it as an overlap."""
+    import shapely
+    from shapely.geometry import Polygon
+
+    angles = np.linspace(0, 2 * np.pi, 121)[:-1]
+    radius = 1.3 + 0.15 * np.sin(7 * angles) + 0.04 * np.cos(3 * angles)
+    ring = np.c_[5 + radius * np.cos(angles), 5 + radius * np.sin(angles)]
+    enclave = Polygon(ring)
+    jitter = np.random.default_rng(0).normal(scale=1e-10, size=ring.shape)
+    outer = Polygon([(0, 0), (10, 0), (10, 10), (0, 10)], holes=[ring + jitter])
+    sliver = shapely.intersection(outer, enclave).area
+    assert 0 < sliver < 1e-9 * enclave.area  # the class of noise this guards against
+
+    areas = Areas([outer, enclave], ["Outer", "Enclave"])
+    assert areas.overlapping_pairs() == []
+    assert areas.locate(5, 5) == "Enclave"
+    assert areas.locate(1, 1) == "Outer"
+
+
+def test_a_real_but_small_overlap_is_still_reported():
+    """The tolerance must stay far below anything a human would call an overlap."""
+    from shapely.geometry import box
+
+    a = box(0, 0, 10, 10)
+    b = box(10 - 1e-3, 0, 20, 10)  # a strip 1 mm wide on a 10 m square: 1e-4 of the area
+    assert Areas([a, b], ["A", "B"]).overlapping_pairs() == [("A", "B")]
 
 
 def test_sharing_a_border_is_not_an_overlap(tmp_path):

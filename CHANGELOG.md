@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.1 — unreleased
+
+### Fixed
+
+- `Areas.overlapping_pairs()` reported a false overlap whenever one area's hole
+  was the outline of another — an enclave such as San Marino inside Italy, or
+  any boundary derived by subtracting a neighbour. GEOS computes that
+  intersection with an area on the order of 1e-18 square degrees rather than
+  zero, and the check was a strict `> 0`. Intersections smaller than one
+  billionth of the smaller area are now ignored; real containment and genuine
+  overlaps are unaffected.
+
+### Added
+
+- `examples/getting-started.ipynb`, an executed walkthrough of the whole API,
+  with `examples/data/` holding real OpenStreetMap boundaries for Milan (three
+  nested administrative levels) and Italy (islands and enclave holes).
+
 ## 0.2.0 — 2026-09-07
 
 A repair-and-foundations release: no new features, but the package now installs

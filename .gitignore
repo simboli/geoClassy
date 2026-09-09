@@ -10,3 +10,4 @@ venv/
 .ruff_cache/
 .coverage
 .DS_Store
+.ipynb_checkpoints/

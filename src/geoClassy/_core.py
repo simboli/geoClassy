@@ -201,7 +201,14 @@ class Areas:
         for a, b in zip(left, right):
             if a >= b:
                 continue
-            if shapely.intersection(self._geoms[a], self._geoms[b]).area > 0:
+            shared = shapely.intersection(self._geoms[a], self._geoms[b]).area
+            # Relative tolerance rather than a strict > 0. When one area's hole
+            # is another area's outline -- an enclave like San Marino inside
+            # Italy -- GEOS computes their intersection with an area around
+            # 1e-18 square degrees, not zero. Real containment scores 1.0 on
+            # this ratio and any overlap a human would call one is many orders
+            # of magnitude above 1e-9; only floating-point noise sits below it.
+            if shared > 1e-9 * min(self._areas[a], self._areas[b]):
                 pairs.append((self._names[a], self._names[b]))
         return pairs
 
